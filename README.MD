@@ -2,7 +2,7 @@
 
 源码21K，优化后11k，精简易用
 
-[演示demo](picker.html)
+[演示demo](https://anderpang.github.io/picker/picker.html)
 
 ### 使用
 
