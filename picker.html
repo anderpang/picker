@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Picker</title>
+    <link rel="stylesheet" href="css/picker.css">
+    <style>
+        .app{max-width:600px;margin:3em auto;}
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div id="test">城市三级联动：<span></span></div>
+        <div id="date">日期选择：<span>2019-05-20</span></div>
+    </div>
+
+    <script src="./js/picker.js"></script>
+    <script src="./js/area-data.js"></script>
+    <script>
+
+       document.querySelector("#test").addEventListener("click",function(){
+           var span=this.lastElementChild,
+               defaults=span.getAttribute("data-ids");
+               defaults=defaults?defaults.split(","):[];
+
+            new Picker({
+                headerHeight:"3em",
+                //itemHeight:35,
+                itemHeight:"10vw",
+                itemKeys:{
+                    id:"id",
+                    value:"value",
+                    parentId:"parentId"
+                },
+                data:areaData,
+                defaults:defaults,
+                //cancelButtonText:"Cancel",
+                //sureButtonText:"Ok",
+                // change:function(columnIndex,record){
+                //     console.log(columnIndex,record);
+                // },
+                callback:function(result){
+                    var ids=result.map(function(item){
+                        return item.id;
+                    }),
+                    values=result.map(function(item){
+                        return item.value;
+                    });
+
+                    span.setAttribute("data-ids",ids.join(","));
+                    span.textContent=values.join("");
+                }
+            });
+       },false);
+
+       /********************************* 日期选择 ***************************/
+
+       //获取年份
+       function getYears(){
+           var out=[],
+               i=2000,
+               ii=2031;
+            for(;i<ii;i++){
+                out.push(i);
+            }
+            return out;
+       }
+       
+       //获取月份
+       function getMonths(){
+        var out=[],
+               i=1,
+               ii=13;
+            for(;i<ii;i++){
+                out.push(i);
+            }
+            return out;
+       }
+
+       //获取天数
+       function getDays(year,month){
+        var out=[],
+               i=1,
+               ii=31;
+            if(month===2){
+                if(year%4===0 && year%100!==0 || year%400==0){
+                    ii=29;
+                }
+                else{
+                    ii=28;
+                }
+            }
+            else if([4,6,9,11].indexOf(month)!==-1){
+                ii=30;
+            }
+            for(;i<=ii;i++){
+                out.push(i);
+            }
+            return out;
+       }
+
+       document.querySelector("#date").addEventListener("click",function(){
+
+           var span=this.lastElementChild,
+               defaults=span.textContent.split("-").map(function(v){
+                   return v*1;
+               });
+               
+         
+        new Picker({
+                title:"日期选择",
+                data:[
+                    getYears(),
+                    getMonths(),
+                    getDays(defaults[0],defaults[1])
+                ],
+                defaults:defaults,
+                change:function(index,record){
+                    //第一列，年份处理，return false不更新月份
+                    if(index===0){
+                        return false;
+                    }
+
+                    //月份变化时，处理日期
+                    if(index===1){
+                        var year=this.getResult(0);
+                        return getDays(year,record);
+                    }
+                },
+                callback:function(result){
+                    span.textContent=result.map(function(v){
+                        return v<10?'0'+v:v;
+                    }).join("-");
+                }
+            });
+       },false);
+
+    </script>
+</body>
+</html>
